@@ -1,6 +1,6 @@
 
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import App from './App';
 
 /**
@@ -11,19 +11,19 @@ const mount = () => {
   const rootElement = document.getElementById('root');
   
   if (!rootElement) {
-    console.error("Critical Error: Root element '#root' not found. Execution halted.");
+    console.error("Root element not found");
     return;
   }
 
   try {
-    const root = ReactDOM.createRoot(rootElement);
+    const root = createRoot(rootElement);
     root.render(
       <React.StrictMode>
         <App />
       </React.StrictMode>
     );
   } catch (error) {
-    console.error("Critical Render Error Captured:", error);
+    console.error("React Mounting Error:", error);
   }
 };
 
