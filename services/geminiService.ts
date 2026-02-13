@@ -1,9 +1,17 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { BlogPost, Category } from "../types";
+import { BlogPost } from "../types";
 
-// Fixed: Initializing with process.env.API_KEY strictly as per @google/genai guidelines
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Safety check for process.env
+const getApiKey = () => {
+  try {
+    return (window as any).process?.env?.API_KEY || (process as any)?.env?.API_KEY || '';
+  } catch (e) {
+    return '';
+  }
+};
+
+const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 const POST_SCHEMA = {
   type: Type.OBJECT,
@@ -22,6 +30,12 @@ const POST_SCHEMA = {
 };
 
 export async function generateDailyPost(): Promise<Partial<BlogPost> | null> {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    console.error("API Key missing");
+    return null;
+  }
+
   try {
     const prompt = `Generate a professional, high-quality fitness blog post about one of these topics: 
     Home workouts, Weight loss, Muscle building, Low-impact fitness, Senior fitness, or Recovery. 

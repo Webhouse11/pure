@@ -1,28 +1,40 @@
 
 import React, { useState, useEffect } from 'react';
-import { Bell, X, Check, zap } from 'lucide-react';
+import { Bell, X, Check, Zap } from 'lucide-react';
 
 const NotificationSystem: React.FC = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [showNewPostAlert, setShowNewPostAlert] = useState(false);
-  const [notifStatus, setNotifStatus] = useState<string | null>(localStorage.getItem('purelife_notif_status'));
+  const [notifStatus, setNotifStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    // Show enrollment prompt for new users after a short delay
-    if (!notifStatus) {
-      const timer = setTimeout(() => setShowPrompt(true), 5000);
-      return () => clearTimeout(timer);
+    // Safe localStorage access
+    try {
+      const saved = localStorage.getItem('purelife_notif_status');
+      setNotifStatus(saved);
+      
+      // Show enrollment prompt for new users after a short delay
+      if (!saved) {
+        const timer = setTimeout(() => setShowPrompt(true), 5000);
+        return () => clearTimeout(timer);
+      }
+    } catch (e) {
+      console.warn('LocalStorage inaccessible', e);
     }
-  }, [notifStatus]);
+  }, []);
 
   useEffect(() => {
     // Logic to check for new posts since last visit
     const checkNewPosts = () => {
-      const lastSeen = localStorage.getItem('purelife_last_seen_post_time') || '0';
-      const lastPublished = localStorage.getItem('purelife_last_published_time') || '0';
-      
-      if (notifStatus === 'enabled' && Number(lastPublished) > Number(lastSeen)) {
-        setShowNewPostAlert(true);
+      try {
+        const lastSeen = localStorage.getItem('purelife_last_seen_post_time') || '0';
+        const lastPublished = localStorage.getItem('purelife_last_published_time') || '0';
+        
+        if (notifStatus === 'enabled' && Number(lastPublished) > Number(lastSeen)) {
+          setShowNewPostAlert(true);
+        }
+      } catch (e) {
+        console.warn('Error checking for new posts', e);
       }
     };
 
@@ -32,22 +44,33 @@ const NotificationSystem: React.FC = () => {
   }, [notifStatus]);
 
   const handleEnable = () => {
-    localStorage.setItem('purelife_notif_status', 'enabled');
-    setNotifStatus('enabled');
-    setShowPrompt(false);
-    // Set current time as 'seen' so they don't get alerted for old posts immediately
-    localStorage.setItem('purelife_last_seen_post_time', Date.now().toString());
+    try {
+      localStorage.setItem('purelife_notif_status', 'enabled');
+      setNotifStatus('enabled');
+      setShowPrompt(false);
+      localStorage.setItem('purelife_last_seen_post_time', Date.now().toString());
+    } catch (e) {
+      setShowPrompt(false);
+    }
   };
 
   const handleIgnore = () => {
-    localStorage.setItem('purelife_notif_status', 'ignored');
-    setNotifStatus('ignored');
-    setShowPrompt(false);
+    try {
+      localStorage.setItem('purelife_notif_status', 'ignored');
+      setNotifStatus('ignored');
+      setShowPrompt(false);
+    } catch (e) {
+      setShowPrompt(false);
+    }
   };
 
   const markAsRead = () => {
-    localStorage.setItem('purelife_last_seen_post_time', Date.now().toString());
-    setShowNewPostAlert(false);
+    try {
+      localStorage.setItem('purelife_last_seen_post_time', Date.now().toString());
+      setShowNewPostAlert(false);
+    } catch (e) {
+      setShowNewPostAlert(false);
+    }
   };
 
   return (
