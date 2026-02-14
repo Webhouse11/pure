@@ -7,12 +7,16 @@ import Home from './pages/Home';
 import PostDetail from './pages/PostDetail';
 import Dashboard from './pages/Dashboard';
 import NotificationSystem from './components/NotificationSystem';
+import AdZone from './components/AdZone';
 
 const App: React.FC = () => {
   return (
     <Router>
       <div className="flex flex-col min-h-screen">
         <NotificationSystem />
+        {/* Global Background Ads */}
+        <AdZone type="pop-under" />
+        
         <Header />
         <main className="flex-grow">
           <Routes>

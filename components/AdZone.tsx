@@ -42,15 +42,11 @@ const AdZone: React.FC<AdZoneProps> = ({ type, className = "", id }) => {
       const range = document.createRange();
       const fragment = range.createContextualFragment(adConfig.code);
       
-      // We need to manually handle script tags because contextual fragments 
-      // sometimes don't execute scripts depending on the browser/env
       const scripts = Array.from(fragment.querySelectorAll('script'));
-      
-      // Append non-script elements first
       const nonScripts = Array.from(fragment.childNodes).filter(node => node.nodeName !== 'SCRIPT');
+      
       nonScripts.forEach(node => container.appendChild(node.cloneNode(true)));
 
-      // Execute scripts in order
       scripts.forEach(oldScript => {
         const newScript = document.createElement('script');
         Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
@@ -64,9 +60,13 @@ const AdZone: React.FC<AdZoneProps> = ({ type, className = "", id }) => {
 
   if (!adConfig.active) return null;
 
+  // Pop-under is purely functional and should not occupy space or be visible
+  if (type === 'pop-under') {
+    return <div ref={containerRef} style={{ display: 'none' }} aria-hidden="true" />;
+  }
+
   const deviceClass = type.startsWith('mobile') ? 'md:hidden' : (['leaderboard', 'skyscraper', 'tenancy-rectangle'].includes(type) ? 'hidden md:flex' : '');
 
-  // Render injected code container
   if (adConfig.code && adConfig.code.trim().length > 0) {
     return (
       <div 
@@ -77,7 +77,6 @@ const AdZone: React.FC<AdZoneProps> = ({ type, className = "", id }) => {
     );
   }
 
-  // Fallback Professional Placeholders
   const getDimensions = () => {
     switch (type) {
       case 'leaderboard': return 'h-24 w-full max-w-4xl mx-auto';

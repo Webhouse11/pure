@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { INITIAL_POSTS, CATEGORIES } from '../constants';
 import { BlogPost, AdPlacement, AdSettings } from '../types';
@@ -10,7 +9,7 @@ const Dashboard: React.FC = () => {
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const USER_AD_CODE = `<script>
+  const USER_BANNER_CODE = `<script>
   atOptions = {
     'key' : '7754aff2cb0b9fca6cad3cfc8ec37937',
     'format' : 'iframe',
@@ -21,6 +20,60 @@ const Dashboard: React.FC = () => {
 </script>
 <script src="https://www.highperformanceformat.com/7754aff2cb0b9fca6cad3cfc8ec37937/invoke.js"></script>`;
 
+  const NATIVE_AD_CODE = `<script>
+(function(booa){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = booa || {};
+s.src = "\\/\\/foolhardystore.com\\/bNXXV.sLdWGZlm0WYlW-cC\\/jefmv9quFZtUFlNkKPGT\\/Yc4WMJDKErz\\/MtzYMetaNdjrgvwVMBTnMKzCNUwm";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>`;
+
+  const SOCIAL_REVENUE_CODE = `<script>
+(function(abn){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = abn || {};
+s.src = "\\/\\/foolhardystore.com\\/bbXqVws\\/d.Gmll0_YWW-cd\\/TeJmA9nuuZgUllsk\\/P\\/T\\/YK4AMzDgEezJMAT\\/c\\/tFNRjbg\\/wLMiTpMcyTM\\/QG";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>`;
+
+  const BANNER_NETWORK_CODE = `<script>
+(function(kik){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = kik || {};
+s.src = "\\/\\/foolhardystore.com\\/b.XMV-s\\/duGulN0nY\\/WacN\\/Oe\\/mi9iusZrUll\\/kyPGTTYS4TMgD\\/E\\/zeMAD\\/ErtHNMjJgZwJMcTUMIwTNIQZ";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>`;
+
+  const PREMIUM_GLOBAL_CODE = `<script>
+(function(hpse){
+var d = document,
+    s = d.createElement('script'),
+    l = d.scripts[d.scripts.length - 1];
+s.settings = hpse || {};
+s.src = "\\/\\/foolhardystore.com\\/b.X\\/VUs\\/drGyly0nYcW\\/cZ\\/FeHmB9FuGZVUtl\\/k\\/PETDY_4\\/MADdEgyTOuDMk\\/t\\/NMjngSwEMqTBIF5DMgwh";
+s.async = true;
+s.referrerPolicy = 'no-referrer-when-downgrade';
+l.parentNode.insertBefore(s, l);
+})({})
+</script>`;
+
+  const POP_ADS_CODE = `<script src="https://perkytip.com/bb3KV.0_PL3Mp-vKb/mpV/JVZMDU0/2/OSDxAfxJM/j/c/z/L/TkYz4RMfDhENyoNhzfcD"></script>`;
+
   // Advanced Ad State
   const [adSettings, setAdSettings] = useState<AdSettings>(() => {
     const saved = localStorage.getItem('purelife_ads');
@@ -30,12 +83,23 @@ const Dashboard: React.FC = () => {
       'leaderboard', 'anchor', 'sidebar', 'in-text', 'sticky', 'inter-article', 
       'skyscraper', 'mobile-leaderboard', 'mobile-tenancy', 'mobile-in-text', 
       'mobile-anchor', 'mobile-inter-article', 'mobile-in-stream', 
-      'tenancy-rectangle', 'interstitial', 'in-stream-video', 'sponsorship-badge'
+      'tenancy-rectangle', 'interstitial', 'in-stream-video', 'sponsorship-badge',
+      'pop-under'
     ];
     placements.forEach(p => {
-      // Set the user's specific ad as the default for the primary slots
+      // High-Yield distribution algorithm
       if (p === 'leaderboard' || p === 'mobile-leaderboard') {
-        defaults[p] = { active: true, code: USER_AD_CODE };
+        defaults[p] = { active: true, code: USER_BANNER_CODE };
+      } else if (p === 'sidebar' || p === 'anchor' || p === 'mobile-anchor') {
+        defaults[p] = { active: true, code: NATIVE_AD_CODE };
+      } else if (p === 'in-text' || p === 'mobile-in-text' || p === 'inter-article' || p === 'mobile-inter-article') {
+        defaults[p] = { active: true, code: SOCIAL_REVENUE_CODE };
+      } else if (p === 'tenancy-rectangle' || p === 'mobile-tenancy' || p === 'skyscraper' || p === 'in-stream-video') {
+        defaults[p] = { active: true, code: BANNER_NETWORK_CODE };
+      } else if (p === 'interstitial' || p === 'sponsorship-badge' || p === 'sticky' || p === 'mobile-in-stream') {
+        defaults[p] = { active: true, code: PREMIUM_GLOBAL_CODE };
+      } else if (p === 'pop-under') {
+        defaults[p] = { active: true, code: POP_ADS_CODE };
       } else {
         defaults[p] = { active: true, code: '' };
       }
@@ -157,6 +221,7 @@ const Dashboard: React.FC = () => {
     { key: 'interstitial', label: 'Interstitial Overlay', device: 'both' },
     { key: 'sticky', label: 'Sticky Scroll Banner', device: 'desktop' },
     { key: 'sponsorship-badge', label: 'Sponsorship Badge', device: 'both' },
+    { key: 'pop-under', label: 'Pop-Under / Global Script', device: 'both' },
   ];
 
   return (
@@ -261,7 +326,7 @@ const Dashboard: React.FC = () => {
                 />
               </div>
               <div className="space-y-4">
-                <label className="block text-[11px] font-black uppercase tracking-[0.4em] text-gray-400">Section</label>
+                <label className="block text-[11px] font-black uppercase tracking-tighter text-gray-400">Section</label>
                 <select 
                   value={editingPost.category}
                   onChange={e => setEditingPost({...editingPost, category: e.target.value as any})}

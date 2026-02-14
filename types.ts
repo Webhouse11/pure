@@ -36,7 +36,8 @@ export type AdPlacement =
   | 'tenancy-rectangle'
   | 'interstitial'
   | 'in-stream-video'
-  | 'sponsorship-badge';
+  | 'sponsorship-badge'
+  | 'pop-under';
 
 export interface AdConfig {
   active: boolean;

@@ -24,12 +24,6 @@ const Home: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 py-6 relative">
       {showInterstitial && <AdZone type="interstitial" id="global-interstitial" />}
 
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <AdZone type="sponsorship-badge" />
-        <AdZone type="leaderboard" className="flex-grow" />
-        <AdZone type="mobile-leaderboard" className="w-full" />
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <div className="lg:col-span-8">
           <div className="mb-14">
@@ -51,6 +45,11 @@ const Home: React.FC = () => {
                 <span className="text-red-600">Top Story</span>
               </div>
             </Link>
+          </div>
+
+          {/* WELL-PLACED BANNER: Directly under Hero Feature */}
+          <div className="mb-14 p-4 bg-gray-50 border-y border-gray-100 flex justify-center">
+            <AdZone type="in-text" />
           </div>
 
           <AdZone type="tenancy-rectangle" className="mb-14" />

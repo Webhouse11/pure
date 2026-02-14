@@ -2,10 +2,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { SITE_NAME, CATEGORIES } from '../constants';
+import AdZone from './AdZone';
 
 const Footer: React.FC = () => {
   return (
     <footer className="bg-gray-100 border-t border-gray-300 mt-12 py-12 px-4 md:px-8">
+      {/* WELL-PLACED FOOTER AD */}
+      <div className="max-w-7xl mx-auto mb-16 flex justify-center">
+        <AdZone type="inter-article" className="w-full max-w-4xl" />
+      </div>
+
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="col-span-1 md:col-span-1">
           <h2 className="text-2xl font-black uppercase mb-4 tracking-tighter">{SITE_NAME}</h2>
@@ -28,7 +34,6 @@ const Footer: React.FC = () => {
             <li><Link to="/contact" className="hover:text-red-600">Contact</Link></li>
             <li><Link to="/privacy" className="hover:text-red-600">Privacy Policy</Link></li>
             <li><Link to="/terms" className="hover:text-red-600">Terms of Service</Link></li>
-            <li><a href="/sitemap.xml" className="hover:text-red-600">Sitemap</a></li>
           </ul>
         </div>
         <div>
