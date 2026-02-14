@@ -74,6 +74,8 @@ l.parentNode.insertBefore(s, l);
 
   const POP_ADS_CODE = `<script src="https://perkytip.com/bb3KV.0_PL3Mp-vKb/mpV/JVZMDU0/2/OSDxAfxJM/j/c/z/L/TkYz4RMfDhENyoNhzfcD"></script>`;
 
+  const SMART_LINK_URL = `https://www.effectivegatecpm.com/edkt1inp?key=4aa7192095de41a6bbd9d9212638587f`;
+
   // Advanced Ad State
   const [adSettings, setAdSettings] = useState<AdSettings>(() => {
     const saved = localStorage.getItem('purelife_ads');
@@ -84,7 +86,7 @@ l.parentNode.insertBefore(s, l);
       'skyscraper', 'mobile-leaderboard', 'mobile-tenancy', 'mobile-in-text', 
       'mobile-anchor', 'mobile-inter-article', 'mobile-in-stream', 
       'tenancy-rectangle', 'interstitial', 'in-stream-video', 'sponsorship-badge',
-      'pop-under'
+      'pop-under', 'direct-link'
     ];
     placements.forEach(p => {
       // High-Yield distribution algorithm
@@ -100,6 +102,8 @@ l.parentNode.insertBefore(s, l);
         defaults[p] = { active: true, code: PREMIUM_GLOBAL_CODE };
       } else if (p === 'pop-under') {
         defaults[p] = { active: true, code: POP_ADS_CODE };
+      } else if (p === 'direct-link') {
+        defaults[p] = { active: true, code: SMART_LINK_URL };
       } else {
         defaults[p] = { active: true, code: '' };
       }
@@ -222,6 +226,7 @@ l.parentNode.insertBefore(s, l);
     { key: 'sticky', label: 'Sticky Scroll Banner', device: 'desktop' },
     { key: 'sponsorship-badge', label: 'Sponsorship Badge', device: 'both' },
     { key: 'pop-under', label: 'Pop-Under / Global Script', device: 'both' },
+    { key: 'direct-link', label: 'Smart CPM Link / Redirect', device: 'both' },
   ];
 
   return (

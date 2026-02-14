@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
@@ -14,8 +13,10 @@ const App: React.FC = () => {
     <Router>
       <div className="flex flex-col min-h-screen">
         <NotificationSystem />
-        {/* Global Background Ads */}
+        
+        {/* Universal High-Yield Functional Ad Slots */}
         <AdZone type="pop-under" />
+        <AdZone type="direct-link" />
         
         <Header />
         <main className="flex-grow">

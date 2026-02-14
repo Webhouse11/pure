@@ -1,4 +1,3 @@
-
 export type Category = 'Home Workouts' | 'Weight Loss' | 'Muscle Building' | 'Low-Impact' | 'Senior Fitness' | 'Recovery' | 'Nutrition';
 
 export interface BlogPost {
@@ -37,7 +36,8 @@ export type AdPlacement =
   | 'interstitial'
   | 'in-stream-video'
   | 'sponsorship-badge'
-  | 'pop-under';
+  | 'pop-under'
+  | 'direct-link';
 
 export interface AdConfig {
   active: boolean;

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { AdPlacement, AdSettings } from '../types';
 
@@ -13,31 +12,37 @@ const AdZone: React.FC<AdZoneProps> = ({ type, className = "", id }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const savedAds = localStorage.getItem('purelife_ads');
-    if (savedAds) {
-      const parsed: AdSettings = JSON.parse(savedAds);
-      if (parsed[type]) {
-        setAdConfig(parsed[type]);
-      }
-    }
-
-    const handleAdUpdate = () => {
-      const updated = localStorage.getItem('purelife_ads');
-      if (updated) {
-        const parsed: AdSettings = JSON.parse(updated);
-        if (parsed[type]) setAdConfig(parsed[type]);
+    const syncAds = () => {
+      const savedAds = localStorage.getItem('purelife_ads');
+      if (savedAds) {
+        const parsed: AdSettings = JSON.parse(savedAds);
+        if (parsed[type]) {
+          setAdConfig(parsed[type]);
+        }
       }
     };
 
-    window.addEventListener('ads-updated', handleAdUpdate);
-    return () => window.removeEventListener('ads-updated', handleAdUpdate);
+    syncAds();
+    window.addEventListener('ads-updated', syncAds);
+    return () => window.removeEventListener('ads-updated', syncAds);
   }, [type]);
 
-  // Handle script execution for injected ad code
+  // Handle script execution and dynamic triggers
   useEffect(() => {
     if (adConfig.active && adConfig.code && containerRef.current) {
+      // Special logic for direct-link high-yield triggers
+      if (type === 'direct-link') {
+        const url = adConfig.code.match(/https?:\/\/[^\s"']+/)?.[0] || adConfig.code;
+        const clickHandler = () => {
+          window.open(url, '_blank');
+          document.removeEventListener('click', clickHandler);
+        };
+        document.addEventListener('click', clickHandler, { once: true });
+        return () => document.removeEventListener('click', clickHandler);
+      }
+
       const container = containerRef.current;
-      container.innerHTML = ''; // Clear previous
+      container.innerHTML = '';
 
       const range = document.createRange();
       const fragment = range.createContextualFragment(adConfig.code);
@@ -56,73 +61,49 @@ const AdZone: React.FC<AdZoneProps> = ({ type, className = "", id }) => {
         container.appendChild(newScript);
       });
     }
-  }, [adConfig]);
+  }, [adConfig, type]);
 
   if (!adConfig.active) return null;
 
-  // Pop-under is purely functional and should not occupy space or be visible
-  if (type === 'pop-under') {
+  // Pop-under and direct-link are purely functional
+  if (type === 'pop-under' || type === 'direct-link') {
     return <div ref={containerRef} style={{ display: 'none' }} aria-hidden="true" />;
   }
 
-  const deviceClass = type.startsWith('mobile') ? 'md:hidden' : (['leaderboard', 'skyscraper', 'tenancy-rectangle'].includes(type) ? 'hidden md:flex' : '');
+  const deviceClass = type.startsWith('mobile') ? 'md:hidden' : 
+    (['leaderboard', 'skyscraper', 'tenancy-rectangle', 'sticky'].includes(type) ? 'hidden md:flex' : '');
 
   if (adConfig.code && adConfig.code.trim().length > 0) {
     return (
       <div 
         ref={containerRef}
-        className={`${className} ${deviceClass} flex justify-center items-center overflow-hidden min-h-[60px]`}
+        className={`${className} ${deviceClass} flex justify-center items-center overflow-hidden`}
         id={id}
       />
     );
   }
 
+  // Placeholder logic for empty slots (visual only in Dev)
   const getDimensions = () => {
     switch (type) {
-      case 'leaderboard': return 'h-24 w-full max-w-4xl mx-auto';
+      case 'leaderboard': return 'h-24 w-full max-w-4xl';
       case 'mobile-leaderboard': return 'h-20 w-full';
-      case 'sidebar': return 'h-64 w-full';
-      case 'tenancy-rectangle': 
-      case 'mobile-tenancy': return 'h-80 w-full border-red-500 border-2';
+      case 'sidebar': return 'h-[250px] w-full';
+      case 'tenancy-rectangle': return 'h-80 w-full border-red-500 border-2';
       case 'anchor':
-      case 'mobile-anchor': return 'h-16 w-full fixed bottom-0 left-0 z-50 shadow-2xl';
-      case 'skyscraper': return 'h-[600px] w-full max-w-[300px]';
-      case 'in-text':
-      case 'mobile-in-text': return 'h-48 w-full my-6';
-      case 'inter-article':
-      case 'mobile-inter-article': return 'h-40 w-full my-10 bg-gray-100';
-      case 'in-stream-video':
-      case 'mobile-in-stream': return 'aspect-video w-full bg-black flex items-center justify-center';
-      case 'interstitial': return 'fixed inset-0 bg-black/80 z-[100] flex items-center justify-center';
-      case 'sticky': return 'sticky top-24 h-64 w-full';
-      case 'sponsorship-badge': return 'h-8 w-24 border border-gray-200';
+      case 'mobile-anchor': return 'h-16 w-full fixed bottom-0 left-0 z-50 shadow-2xl bg-white border-t border-gray-200';
+      case 'skyscraper': return 'h-[600px] w-full';
+      case 'in-text': return 'h-48 w-full my-6 bg-gray-50';
+      case 'sticky': return 'sticky top-24 h-64 w-full bg-gray-50';
       default: return 'h-20 w-full';
     }
   };
 
   const getLabel = () => type.replace(/-/g, ' ').toUpperCase();
 
-  if (type === 'interstitial') {
-    return (
-      <div className={`${getDimensions()} ${className}`} id={id}>
-         <div className="bg-white p-8 relative max-w-lg w-full text-center shadow-2xl rounded-lg border-4 border-black">
-            <button className="absolute -top-4 -right-4 bg-red-600 text-white w-10 h-10 rounded-full font-black text-xl flex items-center justify-center shadow-lg" onClick={() => {
-              const el = document.getElementById(id || '');
-              if (el) el.style.display = 'none';
-            }}>×</button>
-            <div className="ad-placeholder h-64 w-full mb-4 bg-gray-50 flex flex-col items-center justify-center">
-              <span className="text-4xl opacity-10 font-black">AD</span>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-30 mt-2">Interstitial Placement</p>
-            </div>
-            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Sponsored Content</p>
-         </div>
-      </div>
-    );
-  }
-
   return (
     <div className={`ad-placeholder ${getDimensions()} ${className} ${deviceClass}`}>
-      <span className="text-[9px] font-black opacity-30 tracking-widest leading-none text-center px-2">{getLabel()}</span>
+      <span className="text-[8px] font-black opacity-30 tracking-[0.2em]">{getLabel()}</span>
     </div>
   );
 };
