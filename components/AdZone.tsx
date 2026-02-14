@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { AdPlacement, AdSettings } from '../types';
 
 interface AdZoneProps {
@@ -10,6 +10,7 @@ interface AdZoneProps {
 
 const AdZone: React.FC<AdZoneProps> = ({ type, className = "", id }) => {
   const [adConfig, setAdConfig] = useState<{active: boolean, code: string}>({ active: true, code: '' });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const savedAds = localStorage.getItem('purelife_ads');
@@ -32,18 +33,46 @@ const AdZone: React.FC<AdZoneProps> = ({ type, className = "", id }) => {
     return () => window.removeEventListener('ads-updated', handleAdUpdate);
   }, [type]);
 
+  // Handle script execution for injected ad code
+  useEffect(() => {
+    if (adConfig.active && adConfig.code && containerRef.current) {
+      const container = containerRef.current;
+      container.innerHTML = ''; // Clear previous
+
+      const range = document.createRange();
+      const fragment = range.createContextualFragment(adConfig.code);
+      
+      // We need to manually handle script tags because contextual fragments 
+      // sometimes don't execute scripts depending on the browser/env
+      const scripts = Array.from(fragment.querySelectorAll('script'));
+      
+      // Append non-script elements first
+      const nonScripts = Array.from(fragment.childNodes).filter(node => node.nodeName !== 'SCRIPT');
+      nonScripts.forEach(node => container.appendChild(node.cloneNode(true)));
+
+      // Execute scripts in order
+      scripts.forEach(oldScript => {
+        const newScript = document.createElement('script');
+        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+        if (oldScript.innerHTML) {
+          newScript.innerHTML = oldScript.innerHTML;
+        }
+        container.appendChild(newScript);
+      });
+    }
+  }, [adConfig]);
+
   if (!adConfig.active) return null;
 
-  // Handle mobile-only or desktop-only slots via CSS classes
   const deviceClass = type.startsWith('mobile') ? 'md:hidden' : (['leaderboard', 'skyscraper', 'tenancy-rectangle'].includes(type) ? 'hidden md:flex' : '');
 
-  // Render injected code
+  // Render injected code container
   if (adConfig.code && adConfig.code.trim().length > 0) {
     return (
       <div 
-        className={`${className} ${deviceClass} flex justify-center items-center overflow-hidden`}
+        ref={containerRef}
+        className={`${className} ${deviceClass} flex justify-center items-center overflow-hidden min-h-[60px]`}
         id={id}
-        dangerouslySetInnerHTML={{ __html: adConfig.code }}
       />
     );
   }

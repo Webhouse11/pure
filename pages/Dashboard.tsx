@@ -10,6 +10,17 @@ const Dashboard: React.FC = () => {
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
+  const USER_AD_CODE = `<script>
+  atOptions = {
+    'key' : '7754aff2cb0b9fca6cad3cfc8ec37937',
+    'format' : 'iframe',
+    'height' : 60,
+    'width' : 468,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highperformanceformat.com/7754aff2cb0b9fca6cad3cfc8ec37937/invoke.js"></script>`;
+
   // Advanced Ad State
   const [adSettings, setAdSettings] = useState<AdSettings>(() => {
     const saved = localStorage.getItem('purelife_ads');
@@ -21,7 +32,14 @@ const Dashboard: React.FC = () => {
       'mobile-anchor', 'mobile-inter-article', 'mobile-in-stream', 
       'tenancy-rectangle', 'interstitial', 'in-stream-video', 'sponsorship-badge'
     ];
-    placements.forEach(p => defaults[p] = { active: true, code: '' });
+    placements.forEach(p => {
+      // Set the user's specific ad as the default for the primary slots
+      if (p === 'leaderboard' || p === 'mobile-leaderboard') {
+        defaults[p] = { active: true, code: USER_AD_CODE };
+      } else {
+        defaults[p] = { active: true, code: '' };
+      }
+    });
     return defaults;
   });
 
@@ -40,11 +58,7 @@ const Dashboard: React.FC = () => {
   const savePosts = (newPosts: BlogPost[]) => {
     setPosts(newPosts);
     localStorage.setItem('purelife_posts', JSON.stringify(newPosts));
-    
-    // Trigger notification timestamp for readers
     localStorage.setItem('purelife_last_published_time', Date.now().toString());
-    
-    // Global broadcast
     window.dispatchEvent(new Event('posts-updated'));
   };
 
